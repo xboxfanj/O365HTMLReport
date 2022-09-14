@@ -90,7 +90,7 @@ Else
 
     Write-Host "Credential prompt to connect to Exchange Online" -ForegroundColor Yellow
     #Connect to Exchange Online w/ 2FA
-    Connect-EXOPSSession
+    Connect-ExchangeOnline
 }
 
 
