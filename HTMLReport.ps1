@@ -10,32 +10,12 @@
         ExchangeOnlineManagement Module is required
             Install-Module -Name AzureAD
             https://www.powershellgallery.com/packages/ExchangeOnlineManagement/
-        AzureAD  Module is required
+        AzureAD Module is required
             Install-Module -Name AzureAD
             https://www.powershellgallery.com/packages/azuread/
-        ReportHTML Moduile is required
+        ReportHTML Module is required
             Install-Module -Name ReportHTML
             https://www.powershellgallery.com/packages/ReportHTML/
-
-        UPDATES
-        1.0.5
-            /u/ascIVV: Added the following:
-                - Admin Tab
-                    - Privileged Role Administrators
-                    - Exchange Administrators
-                    - User Account Administrators
-                    - Tech Account Restricted Exchange Admin Role
-                    - SharePoint Administrators
-                    - Skype Administrators
-                    - CRM Service Administrators
-                    - Power BI Administrators
-                    - Service Support Administrators
-                    - Billing Administrators
-            /u/TheLazyAdministrator
-                - Cleaned up formatting
-                - Error Handling for $Null obj
-                - Console status
-                - Windows Defender ATP SKU
         
 
 	.DESCRIPTION
@@ -114,8 +94,8 @@ $PrivAdminTable = New-Object 'System.Collections.Generic.List[System.Object]'
 $UserAdminTable = New-Object 'System.Collections.Generic.List[System.Object]'
 $TechExchAdminTable = New-Object 'System.Collections.Generic.List[System.Object]'
 $SharePointAdminTable = New-Object 'System.Collections.Generic.List[System.Object]'
-$SkypeAdminTable = New-Object 'System.Collections.Generic.List[System.Object]'
-$CRMAdminTable = New-Object 'System.Collections.Generic.List[System.Object]'
+$TeamsAdminTable = New-Object 'System.Collections.Generic.List[System.Object]'
+$DynamicsAdminTable = New-Object 'System.Collections.Generic.List[System.Object]'
 $PowerBIAdminTable = New-Object 'System.Collections.Generic.List[System.Object]'
 $ServiceAdminTable = New-Object 'System.Collections.Generic.List[System.Object]'
 $BillingAdminTable = New-Object 'System.Collections.Generic.List[System.Object]'
@@ -453,7 +433,7 @@ Write-Host "Gathering Admin Roles and Members..." -ForegroundColor Yellow
 
 Write-Host "Getting Tenant Global Admins" -ForegroundColor white
 #Get Tenant Global Admins
-$role = Get-AzureADDirectoryRole | Where-Object { $_.DisplayName -match "Company Administrator" } -ErrorAction SilentlyContinue
+$role = Get-AzureADDirectoryRole | Where-Object { $_.DisplayName -match "Global Administrator" } -ErrorAction SilentlyContinue
 If ($null -ne $role)
 {
 	$Admins = Get-AzureADDirectoryRoleMember -ObjectId $role.ObjectId -ErrorAction SilentlyContinue | Where-Object { $_.DisplayName -ne "CloudConsoleGrapApi" }
@@ -496,7 +476,7 @@ If ($null -ne $role)
 
 Write-Host "Getting Tenant Exchange Admins" -ForegroundColor white
 #Get Tenant Exchange Admins
-$exchrole = Get-AzureADDirectoryRole | Where-Object { $_.DisplayName -match "Exchange Service Administrator" } -ErrorAction SilentlyContinue
+$exchrole = Get-AzureADDirectoryRole | Where-Object { $_.DisplayName -match "Exchange Administrator" } -ErrorAction SilentlyContinue
 If ($Null -ne $exchrole)
 {
 	$ExchAdmins = Get-AzureADDirectoryRoleMember -ObjectId $exchrole.ObjectId -ErrorAction SilentlyContinue
@@ -589,9 +569,9 @@ If (($PrivAdminTable).count -eq 0)
 	}
 }
 
-Write-Host "Getting Tenant User Account Admins" -ForegroundColor white
-#Get Tenant User Account Admins
-$userrole = Get-AzureADDirectoryRole | Where-Object { $_.DisplayName -match "User Account Administrator" } -ErrorAction SilentlyContinue
+Write-Host "Getting Tenant User Admins" -ForegroundColor white
+#Get Tenant User Admins
+$userrole = Get-AzureADDirectoryRole | Where-Object { $_.DisplayName -match "User Administrator" } -ErrorAction SilentlyContinue
 If ($Null -ne $userrole)
 {
 	$userAdmins = Get-AzureADDirectoryRoleMember -ObjectId $userrole.ObjectId -ErrorAction SilentlyContinue
@@ -683,7 +663,7 @@ If (($TechExchAdminTable).count -eq 0)
 
 Write-Host "Getting Tenant SharePoint Admins" -ForegroundColor white
 #Get Tenant SharePoint Admins
-$sprole = Get-AzureADDirectoryRole | Where-Object { $_.DisplayName -match "SharePoint Service Administrator" } -ErrorAction SilentlyContinue
+$sprole = Get-AzureADDirectoryRole | Where-Object { $_.DisplayName -match "SharePoint Administrator" } -ErrorAction SilentlyContinue
 If ($Null -ne $sprole)
 {
 	$SPAdmins = Get-AzureADDirectoryRoleMember -ObjectId $sprole.ObjectId -ErrorAction SilentlyContinue
@@ -724,19 +704,19 @@ If ($Null -ne $sprole)
 If (($SharePointAdminTable).count -eq 0)
 {
 	$SharePointAdminTable = [PSCustomObject]@{
-		'Information' = 'Information: No Users with the SharePoint Service Administrator role were found, refer to the Global Administrators list.'
+		'Information' = 'Information: No Users with the SharePoint Administrator role were found, refer to the Global Administrators list.'
 	}
 }
 
-Write-Host "Getting Tenant Skype Admins" -ForegroundColor white
-#Get Tenant Skype Admins
-$skyperole = Get-AzureADDirectoryRole | Where-Object { $_.DisplayName -match "Lync Service Administrator" } -ErrorAction SilentlyContinue
-If ($Null -ne $skyperole)
+Write-Host "Getting Tenant Teams Admins" -ForegroundColor white
+#Get Tenant Teams Admins
+$teamsRole = Get-AzureADDirectoryRole | Where-Object { $_.DisplayName -match "Teams Administrator" } -ErrorAction SilentlyContinue
+If ($Null -ne $teamsRole)
 {
-	$skypeAdmins = Get-AzureADDirectoryRoleMember -ObjectId $skyperole.ObjectId -ErrorAction SilentlyContinue
-	Foreach ($skypeAdmin in $skypeAdmins)
+	$teamsAdmins = Get-AzureADDirectoryRoleMember -ObjectId $teamsRole.ObjectId -ErrorAction SilentlyContinue
+	Foreach ($teamsAdmin in $teamsAdmins)
 	{
-		$MFAS = ((Get-MsolUser -objectid $skypeAdmin.ObjectID -ErrorAction SilentlyContinue).StrongAuthenticationRequirements).State
+		$MFAS = ((Get-MsolUser -objectid $teamsAdmin.ObjectID -ErrorAction SilentlyContinue).StrongAuthenticationRequirements).State
 		
 		if ($Null -ne $MFAS)
 		{
@@ -746,9 +726,9 @@ If ($Null -ne $skyperole)
 		{
 			$MFASTATUS = "Disabled"
 		}
-		$Name = $skypeAdmin.DisplayName
-		$EmailAddress = $skypeAdmin.Mail
-		if (($skypeadmin.assignedlicenses.SkuID) -ne $Null)
+		$Name = $teamsAdmin.DisplayName
+		$EmailAddress = $teamsAdmin.Mail
+		if (($teamsAdmin.assignedlicenses.SkuID) -ne $Null)
 		{
 			$Licensed = $True
 		}
@@ -764,26 +744,26 @@ If ($Null -ne $skyperole)
 			'E-Mail Address' = $EmailAddress
 		}
 		
-		$SkypeAdminTable.add($obj)
+		$teamsAdminTable.add($obj)
 		
 	}
 }
-If (($skypeAdminTable).count -eq 0)
+If (($teamsAdminTable).count -eq 0)
 {
-	$skypeAdminTable = [PSCustomObject]@{
-		'Information' = 'Information: No Users with the Lync Service Administrator role were found, refer to the Global Administrators list.'
+	$teamsAdminTable = [PSCustomObject]@{
+		'Information' = 'Information: No Users with the Teams Administrator role were found, refer to the Global Administrators list.'
 	}
 }
 
-Write-Host "Getting Tenant CRM Admins" -ForegroundColor white
-#Get Tenant CRM Admins
-$crmrole = Get-AzureADDirectoryRole | Where-Object { $_.DisplayName -match "CRM Service Administrator" } -ErrorAction SilentlyContinue
-If ($Null -ne $crmrole)
+Write-Host "Getting Tenant Dynamics 365 Admins" -ForegroundColor white
+#Get Tenant Dynamics 365 Admins
+$dynamicsRole = Get-AzureADDirectoryRole | Where-Object { $_.DisplayName -match "Dynamics 365 Administrator" } -ErrorAction SilentlyContinue
+If ($Null -ne $dynamicsRole)
 {
-	$crmAdmins = Get-AzureADDirectoryRoleMember -ObjectId $crmrole.ObjectId -ErrorAction SilentlyContinue
-	Foreach ($crmAdmin in $crmAdmins)
+	$dynamicsAdmins = Get-AzureADDirectoryRoleMember -ObjectId $dynamicsRole.ObjectId -ErrorAction SilentlyContinue
+	Foreach ($dynamicsAdmin in $dynamicsAdmins)
 	{
-		$MFAS = ((Get-MsolUser -objectid $crmAdmin.ObjectID -ErrorAction SilentlyContinue).StrongAuthenticationRequirements).State
+		$MFAS = ((Get-MsolUser -objectid $dynamicsAdmin.ObjectID -ErrorAction SilentlyContinue).StrongAuthenticationRequirements).State
 		
 		if ($Null -ne $MFAS)
 		{
@@ -793,9 +773,9 @@ If ($Null -ne $crmrole)
 		{
 			$MFASTATUS = "Disabled"
 		}
-		$Name = $crmAdmin.DisplayName
-		$EmailAddress = $crmAdmin.Mail
-		if (($crmadmin.assignedlicenses.SkuID) -ne $Null)
+		$Name = $dynamicsAdmin.DisplayName
+		$EmailAddress = $dynamicsAdmin.Mail
+		if (($dynamicsAdmin.assignedlicenses.SkuID) -ne $Null)
 		{
 			$Licensed = $True
 		}
@@ -811,20 +791,20 @@ If ($Null -ne $crmrole)
 			'E-Mail Address' = $EmailAddress
 		}
 		
-		$CRMAdminTable.add($obj)
+		$dynamicsAdminTable.add($obj)
 		
 	}
 }
-If (($CRMAdminTable).count -eq 0)
+If (($dynamicsAdminTable).count -eq 0)
 {
-	$CRMAdminTable = [PSCustomObject]@{
-		'Information' = 'Information: No Users with the CRM Service Administrator role were found, refer to the Global Administrators list.'
+	$dynamicsAdminTable = [PSCustomObject]@{
+		'Information' = 'Information: No Users with the Dynamics 365 Administrator role were found, refer to the Global Administrators list.'
 	}
 }
 
 Write-Host "Getting Tenant Power BI Admins" -ForegroundColor white
 #Get Tenant Power BI Admins
-$birole = Get-AzureADDirectoryRole | Where-Object { $_.DisplayName -match "Power BI Service Administrator" } -ErrorAction SilentlyContinue
+$birole = Get-AzureADDirectoryRole | Where-Object { $_.DisplayName -match "Power BI Administrator" } -ErrorAction SilentlyContinue
 If ($null -ne $birole)
 {
 	$biAdmins = Get-AzureADDirectoryRoleMember -ObjectId $birole.ObjectId -ErrorAction SilentlyContinue
@@ -1578,7 +1558,7 @@ $rpt += Get-HTMLTabHeader -TabNames $tabarray
 	        $rpt+= get-htmlColumnClose
 			
 		   $rpt+= get-HtmlColumn1of2
-		        $rpt+= Get-HtmlContentOpen -BackgroundShade 1 -HeaderText 'User Account Administrators'
+		        $rpt+= Get-HtmlContentOpen -BackgroundShade 1 -HeaderText 'User Administrators'
 			        $rpt+= get-htmlcontentdatatable  $UserAdminTable -HideFooter
 		        $rpt+= Get-HtmlContentClose
 	        $rpt+= get-htmlColumnClose
@@ -1594,14 +1574,14 @@ $rpt += Get-HTMLTabHeader -TabNames $tabarray
 		        $rpt+= Get-HtmlContentClose
 	        $rpt+= get-htmlColumnClose
 	            $rpt+= get-htmlColumn2of2
-		            $rpt+= Get-HtmlContentOpen -HeaderText 'Skype Administrators'
-			            $rpt+= get-htmlcontentdatatable $SkypeAdminTable -HideFooter 
+		            $rpt+= Get-HtmlContentOpen -HeaderText 'Teams Administrators'
+			            $rpt+= get-htmlcontentdatatable $teamsAdminTable -HideFooter 
 		        $rpt+= Get-HtmlContentClose
 	        $rpt+= get-htmlColumnClose
 
 		   $rpt+= get-HtmlColumn1of2
-		        $rpt+= Get-HtmlContentOpen -BackgroundShade 1 -HeaderText 'CRM Service Administrators'
-			        $rpt+= get-htmlcontentdatatable  $CRMAdminTable -HideFooter
+		        $rpt+= Get-HtmlContentOpen -BackgroundShade 1 -HeaderText 'Dynamics 365 Administrators'
+			        $rpt+= get-htmlcontentdatatable  $dynamicsAdminTable -HideFooter
 		        $rpt+= Get-HtmlContentClose
 	        $rpt+= get-htmlColumnClose
 	            $rpt+= get-htmlColumn2of2
