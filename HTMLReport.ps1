@@ -217,6 +217,7 @@ $Sku = @{
 	"M365EDU_A5_STUDENT"						     = "Microsoft 365 A5 for Students"
 	"M365EDU_A5_STUUSEBNFT"						     = "Microsoft 365 A5 for students use benefit"
 	"M365EDU_A5_NOPSTNCONF_STUUSEBNFT"				     = "Microsoft 365 A5 without Audio Conferencing for students use benefit"
+	"O365_BUSINESS"							     = "Microsoft 365 Apps for Business"
 	"SMB_BUSINESS"							     = "Microsoft 365 Apps for Business"
 	"OFFICESUBSCRIPTION"						     = "Microsoft 365 Apps for Enterprise"
 	"OFFICE_PROPLUS_DEVICE1"					     = "Microsoft 365 Apps for enterprise (device)"
