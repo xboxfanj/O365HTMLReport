@@ -1,12 +1,15 @@
 <#	
 	.NOTES
 	===========================================================================
-     Version:       1.0.5
-	 Updated on:   	8/14/2018
+     Version:       1.0.6
+	 Updated on:   	9/14/2022
 	 Created by:   	/u/TheLazyAdministrator
      Contributors:  /u/ascIVV, /u/jmn_lab, /u/nothingpersonalbro
 	===========================================================================
 
+        ExchangeOnlineManagement Module is required
+            Install-Module -Name AzureAD
+            https://www.powershellgallery.com/packages/ExchangeOnlineManagement/
         AzureAD  Module is required
             Install-Module -Name AzureAD
             https://www.powershellgallery.com/packages/azuread/
